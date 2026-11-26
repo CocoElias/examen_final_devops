@@ -1,0 +1,34 @@
+---
+- name: TechCorp - Automatización y auditoría de servidor Linux
+  hosts: techcorp_servers
+  gather_facts: true
+  vars:
+    app_dir: "/tmp/techcorp_netops"
+    config_file: "/tmp/techcorp_netops/server_config.txt"
+
+  tasks:
+    - name: 1. Crear directorio de operaciones de TechCorp
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        mode: "0750"
+
+    - name: 2. Desplegar archivo de configuración estandarizado
+      copy:
+        dest: "{{ config_file }}"
+        mode: "0640"
+        content: |
+          # Configuración gestionada por Ansible - TechCorp
+          Servidor: {{ ansible_hostname }}
+          Sistema Operativo: {{ ansible_distribution }} {{ ansible_distribution_version }}
+          IP Principal: {{ ansible_default_ipv4.address | default('127.0.0.1') }}
+          Estado: Activo y auditado
+
+    - name: 3. Verificar archivo generado (Post-check)
+      command: "cat {{ config_file }}"
+      register: post_check
+      changed_when: false
+
+    - name: 4. Mostrar resultado de auditoría
+      debug:
+        var: post_check.stdout_lines
