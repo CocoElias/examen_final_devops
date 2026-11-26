@@ -1,0 +1,41 @@
+name: TechCorp NetDevOps CI
+
+on:
+  push:
+    branches: [ "develop", "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt ansible-core
+
+      - name: Lint code with flake8
+        run: |
+          flake8 src/ tests/
+
+      - name: Run unit tests with pytest
+        run: |
+          PYTHONPATH=. pytest -v
+
+      - name: Validate Ansible playbook syntax
+        run: |
+          ansible-playbook --syntax-check -i ansible/inventory/hosts.ini ansible/playbooks/linux_automation.yml
+
+      - name: Build Docker image
+        run: |
+          docker build -t techcorp-netdevops:ci .
