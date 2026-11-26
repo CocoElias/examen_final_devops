@@ -1,0 +1,16 @@
+# Secretos y entorno
+.env
+*.key
+*.pem
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+.pytest_cache/
+
+# Reportes generados y sistema
+reports/*.json
+reports/*.html
+.DS_Store
